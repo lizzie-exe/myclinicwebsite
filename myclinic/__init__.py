@@ -7,26 +7,33 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
 
+# Initialize database object outside the app factory
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=False)
+
+    # Basic app configuration
     app.config.from_mapping(
-        SECRET_KEY='supersecret',
+        SECRET_KEY='supersecret',  # 🔒 You can make this an environment variable later
         SQLALCHEMY_DATABASE_URI='sqlite:///milton.sqlite',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         PERMANENT_SESSION_LIFETIME=timedelta(days=7)
     )
 
+    # Initialize extensions
     db.init_app(app)
     Bootstrap(app)
 
+    # Import models
     from .models import Product, Order, OrderDetail
 
+    # Session: make permanent
     @app.before_request
     def make_session_permanent():
         session.permanent = True
 
+    # Routes
     @app.route('/')
     @app.route('/home')
     def home():
@@ -79,9 +86,9 @@ def create_app():
             return redirect(url_for('cart'))
 
         total = sum(
-            Product.query.get(pid).price * qty
+            Product.query.get(int(pid)).price * qty
             for pid, qty in cart_data.items()
-            if Product.query.get(pid)
+            if Product.query.get(int(pid))
         )
 
         if request.method == 'POST':
@@ -95,7 +102,7 @@ def create_app():
             db.session.flush()
 
             for pid, qty in cart_data.items():
-                p = Product.query.get(pid)
+                p = Product.query.get(int(pid))
                 if not p: continue
                 db.session.add(OrderDetail(
                     order_id=order.id,
@@ -106,7 +113,6 @@ def create_app():
 
             db.session.commit()
             session.pop('cart', None)
-            
             return redirect(url_for('order', order_id=order.id))
 
         return render_template('checkout.html', total=total)
@@ -134,10 +140,12 @@ def create_app():
             similar=similar
         )
 
+    # Manual test route to trigger error
     @app.route('/500')
     def trigger_error():
         abort(500)
 
+    # Error pages
     @app.errorhandler(500)
     def internal_error(e):
         return render_template('500.html'), 500
