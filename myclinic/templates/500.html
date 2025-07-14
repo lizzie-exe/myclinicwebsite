@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block title %}Server Error{% endblock %} {% block
+content %}
+<div class="text-center my-5">
+  <h1 class="display-4">500 — Uh oh!</h1>
+  <p class="lead">Something broke on our end. Try again later?</p>
+  <a href="{{ url_for('home') }}" class="btn btn-primary">Back to safety</a>
+</div>
+{% endblock %}

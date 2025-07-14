@@ -1,0 +1,85 @@
+{# myclinic/templates/product_detail.html #} {% extends 'base.html' %} {% block
+content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h2 class="mb-4 text-left">{{ item.title }}</h2>
+
+      <div class="card">
+        <img
+          src="{{ url_for('static', filename='img/' ~ item.image_filename) }}"
+          class="card-img-top"
+          alt="{{ item.title }}"
+          style="height: 300px; object-fit: cover"
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ item.title }}</h5>
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-muted mb-0">${{ '%.2f'|format(item.price) }}</h6>
+            {% if item.stock > 0 %}
+            <span class="badge badge-success"> {{ item.stock }} in stock </span>
+            {% else %}
+            <span class="badge badge-danger"> Out of stock </span>
+            {% endif %}
+          </div>
+
+          {% if item.features %}
+          <h6 class="mt-4">Features</h6>
+          <ul class="list-group list-group-flush mb-3">
+            {% for feat in item.features.split(',') %}
+            <li class="list-group-item">{{ feat.strip() }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          <a
+            href="{{ url_for('add_to_cart', product_id=item.id) }}"
+            class="btn btn-primary"
+            >Add to Cart</a
+          >
+          <a
+            href="{{ url_for('home') }}#products"
+            class="btn btn-outline-secondary"
+            >Back to Products</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-5" />
+<h3>Similar Products</h3>
+{% if similar %}
+<div class="row">
+  {% for p in similar %}
+  <div class="col-md-6 mb-4">
+    <div class="card h-100">
+      <img
+        src="{{ url_for('static', filename='img/' ~ p.image_filename) }}"
+        class="card-img-top"
+        style="height: 150px; object-fit: cover"
+        alt="{{ p.title }}"
+      />
+      <div class="card-body">
+        <h5 class="card-title">{{ p.title }}</h5>
+        <p class="card-text">${{ '%.2f'|format(p.price) }}</p>
+        <a
+          href="{{ url_for('product_detail', slug=p.slug) }}"
+          class="btn btn-sm btn-primary"
+          >View Details</a
+        >
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p><em>No similar products found.</em></p>
+{% endif %}
+
+<div class="container text-center my-4">
+  <a href="#top" class="btn btn-outline-secondary">↑ Back to Top</a>
+</div>
+{% endblock %}

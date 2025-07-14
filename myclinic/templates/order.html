@@ -1,0 +1,21 @@
+{# templates/order.html #} {% extends 'base.html' %} {% block title %}Thank
+You{% endblock %} {% block content %}
+<div class="alert alert-success">
+  <h2>Thank you for your order!</h2>
+  <p>Your order #{{ order.id }} has been received.</p>
+  <p>We’ve sent a confirmation email to {{ order.email }}.</p>
+</div>
+
+<h4>Order Summary</h4>
+<ul class="list-unstyled">
+  {% for detail in order.order_details %}
+  <li>
+    {{ detail.quantity }} × {{ detail.product.title }} at ${{
+    '%.2f'|format(detail.unit_price) }} each
+  </li>
+  {% endfor %}
+</ul>
+<p><strong>Total:</strong> ${{ '%.2f'|format(order.total_amount) }}</p>
+
+<a href="{{ url_for('home') }}" class="btn btn-primary">Continue Shopping</a>
+{% endblock %}
